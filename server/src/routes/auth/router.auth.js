@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
     
         //Check exist the user
         if (!user)
-		return res.status(400).data(data)
+		return res.status(400).json(data)
     
         //Check password
         const validPassword = await argon2.verify(user.password, req.body.password)
