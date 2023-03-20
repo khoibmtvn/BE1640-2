@@ -1,0 +1,50 @@
+const express = require('express')
+const mongoose = require('mongoose')
+const { DATABASE_URL, PORT } = require('./config');
+const { connectDatabase } = require('./database');
+const ErrorHandler = require('./middlewares/error-handler')
+const cors = require("cors")
+
+//Admin 
+const adminUserRouter = require('./routes/admin/router.admin.user')
+const adminRoleRouter = require('./routes/admin/router.admin.role')
+const adminCategoryRouter = require("./routes/admin/router.admin.category")
+const adminDepartmentRouter = require("./routes/admin/router.admin.department")
+const adminSubmissionRouter = require("./routes/admin/router.admin.submission")
+const adminIdeaRouter = require("./routes/admin/router.admin.idea")
+const authRouter = require("./routes/auth/router.auth")
+
+//User 
+const userIdeaRouter = require("./routes/user/router.user.idea")    
+
+
+const START_APP = async() => {
+    const app = express();
+    
+    await connectDatabase()
+
+    app.use(express.json())
+    app.use(cors())
+    //auth
+    app.use('/auth', authRouter)
+
+    // admin
+    app.use('/admin/user',  adminUserRouter)
+    app.use('/admin/role', adminRoleRouter)
+    app.use('/admin/category', adminCategoryRouter)
+    app.use('/admin/department', adminDepartmentRouter)
+    app.use('/admin/submission', adminSubmissionRouter)
+    app.use('/admin/idea', adminIdeaRouter)
+
+    app.use('/user/idea', userIdeaRouter)
+
+    app.use(ErrorHandler)
+
+const port = PORT || 9999
+
+    app.listen(port, () => {
+        console.log(`Server run in port: ${port}`)
+    })
+}
+
+START_APP()
