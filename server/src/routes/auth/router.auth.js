@@ -23,26 +23,26 @@ router.get("/login", verifyToken, async(req, res, next)=> {
     }}
     catch (err) {
         console.log(error)
-        return res.status(400).data()
+        return res.status(400).json(data)
     }
 });
 router.post('/login', async (req, res) => { 
     //Validation
     const { error } = loginValidation(req.body)
     if(error)
-    return res.status(400).data()
+    return res.status(400).json(data)
     try{
         //Find user
         const user = await user.findOne({ username: req.body.username});
     
         //Check exist the user
         if (!user)
-		return res.status(400).data(json)
+		return res.status(400).data(data)
     
         //Check password
         const validPassword = await argon2.verify(user.password, req.body.password)
         if (!validPassword)
-		return res.status(400).data(json)
+		return res.status(400).json(data)
         
         //Find role
         const roles = await roles.find()
@@ -60,14 +60,14 @@ router.post('/login', async (req, res) => {
         res.cookie("token", accessToken);
         for(let i = 0; roleList[i] != undefined; i++){
             if(roleList[i] == "Admin" || roleList[i] == "QA manager"){
-                return res.data(json)
+                return res.json(data)
             }
         }
         res.redirect("/")
         //res.header('Auth-Access-Token', accessToken).send(accessToken);
     } catch(error){
         console.log(error)
-		return res.status(400).render()
+		return res.status(400).render('/')
     }
 });
 
@@ -79,7 +79,7 @@ router.get('/logout', (req, res) => {
         res.redirect('/loginPage')
     } catch(err){
         console.log(error)
-		return res.status(400).render()
+		return res.status(400).render('/')
     }   
 
 } );
