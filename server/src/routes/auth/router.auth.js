@@ -30,19 +30,28 @@ router.post('/login', async (req, res) => {
     //Validation
     const { error } = loginValidation(req.body)
     if(error)
-    return res.status(400).json(data)
+    return res.status(400).json({
+    success: false,
+	    message: "Invalid Token"
+    })
     try{
         //Find user
         const user = await user.findOne({ username: req.body.username});
     
         //Check exist the user
         if (!user)
-		return res.status(400).json(data)
+		return res.status(400).json({
+		success: false,
+			message: "Invalid User"
+		})
     
         //Check password
         const validPassword = await argon2.verify(user.password, req.body.password)
         if (!validPassword)
-		return res.status(400).json(data)
+		return res.status(400).json({
+		success: false,
+			message: "Invalid Password"
+		})
         
         //Find role
         const roles = await roles.find()
@@ -60,7 +69,15 @@ router.post('/login', async (req, res) => {
         res.cookie("token", accessToken);
         for(let i = 0; roleList[i] != undefined; i++){
             if(roleList[i] == "Admin" || roleList[i] == "QA manager"){
-                return res.json(data)
+                return res.json({
+		success: true,
+			message: "Login successful",
+			users: {
+				firstname: user.firstname,
+				lastname: user.lastname,
+				role: roles
+		},
+			token})
             }
         }
         res.redirect("/")
